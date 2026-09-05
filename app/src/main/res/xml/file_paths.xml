@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Kamerayla cekilen kapak gecici olarak cache/kapaklar altina yazilir. -->
+    <cache-path name="kapaklar" path="kapaklar/" />
+</paths>

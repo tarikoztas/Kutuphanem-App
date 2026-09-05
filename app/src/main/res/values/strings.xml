@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kütüphanem</string>
+
+    <!-- Genel -->
+    <string name="genel_kaydet">Kaydet</string>
+    <string name="genel_iptal">İptal</string>
+    <string name="genel_sil">Sil</string>
+    <string name="genel_duzenle">Düzenle</string>
+    <string name="genel_geri">Geri</string>
+    <string name="genel_tamam">Tamam</string>
+    <string name="genel_yukleniyor">Yükleniyor…</string>
+    <string name="genel_tekrar_dene">Tekrar dene</string>
+
+    <!-- Giriş / Kayıt -->
+    <string name="giris_baslik">Giriş Yap</string>
+    <string name="kayit_baslik">Hesap Oluştur</string>
+    <string name="alan_ad_soyad">Ad Soyad</string>
+    <string name="alan_eposta">E-posta</string>
+    <string name="alan_sifre">Şifre</string>
+    <string name="alan_sifre_tekrar">Şifre (tekrar)</string>
+    <string name="giris_hesabin_yok">Hesabın yok mu? Kayıt ol</string>
+    <string name="giris_hesabin_var">Zaten hesabın var mı? Giriş yap</string>
+    <string name="cikis_yap">Çıkış yap</string>
+
+    <!-- Kütüphaneler -->
+    <string name="kutuphaneler_baslik">Kütüphanelerim</string>
+    <string name="kutuphane_ekle">Kütüphane ekle</string>
+    <string name="kutuphane_adi">Kütüphane adı</string>
+    <string name="kutuphane_bos_baslik">Henüz kütüphanen yok</string>
+    <string name="kutuphane_bos_aciklama">Sağ alttaki + ile ilk rafını oluştur (örneğin \"Ev Kitaplığı\").</string>
+
+    <!-- Kitaplar -->
+    <string name="kitap_ara">Kitap, yazar veya yayınevi ara</string>
+    <string name="kitap_okundu">Okundu</string>
+    <string name="kitap_okunmadi">Okunmadı</string>
+    <string name="kitap_ekle">Kitap ekle</string>
+    <string name="kitap_barkod_tara">Barkod tara</string>
+    <string name="kitap_elle_ekle">Elle ekle</string>
+    <string name="kitap_isimle_ara">İsimle ara</string>
+    <string name="alan_baslik">Kitap adı</string>
+    <string name="alan_yazar">Yazar</string>
+    <string name="alan_yayinevi">Yayınevi</string>
+    <string name="alan_sayfa">Sayfa sayısı</string>
+    <string name="alan_isbn">ISBN</string>
+    <string name="alan_aciklama">Açıklama</string>
+
+    <!-- Tarayıcı -->
+    <string name="tarayici_baslik">Barkodu okut</string>
+    <string name="tarayici_ipucu">Kitabın arkasındaki barkodu çerçeveye getir</string>
+    <string name="tarayici_izin_gerekli">Barkod okumak için kamera izni gerekiyor.</string>
+    <string name="tarayici_izin_ver">İzin ver</string>
+</resources>

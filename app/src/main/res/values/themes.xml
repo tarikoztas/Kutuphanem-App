@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Renkleri Compose yonetir; buradaki tema sadece acilis penceresi icin. -->
+    <style name="Theme.Kutuphanem" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/app_background</item>
+    </style>
+</resources>

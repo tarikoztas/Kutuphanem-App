@@ -1,0 +1,68 @@
+# ---------------------------------------------------------------
+# GIZLI BILGILER - bunlar asla depoya girmemeli
+# ---------------------------------------------------------------
+
+# SDK yolu + GOOGLE_BOOKS_API_KEY burada duruyor
+local.properties
+
+# Firebase yapilandirmasi: API anahtari, proje kimligi, uygulama kimligi
+google-services.json
+**/google-services.json
+GoogleService-Info.plist
+
+# Imzalama anahtarlari ve parolalari
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+key.properties
+
+# Ortam degiskeni dosyalari
+.env
+.env.*
+!.env.example
+
+# Servis hesabi anahtarlari (Firebase Admin vb.)
+*-service-account*.json
+serviceAccountKey*.json
+
+# ---------------------------------------------------------------
+# Derleme ciktilari
+# ---------------------------------------------------------------
+build/
+.gradle/
+.kotlin/
+captures/
+.externalNativeBuild/
+.cxx/
+out/
+release/
+
+# Uretilen paketler (icinde API anahtari gomulu gelir)
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+output-metadata.json
+
+# ---------------------------------------------------------------
+# IDE ve isletim sistemi
+# ---------------------------------------------------------------
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------------------------------------------------------------
+# Gunlukler ve gecici dosyalar
+# ---------------------------------------------------------------
+*.log
+*.tmp
+*.bak
+*~
+hs_err_pid*

@@ -1,0 +1,11 @@
+# Bu dosyayi "local.properties" adiyla kopyalayip kendi degerlerinle doldur.
+# local.properties git'e GIRMEZ, gizli bilgiler orada durur.
+
+# Android SDK yolu - Android Studio projeyi ilk actiginda bunu kendisi yazar.
+# Elle yazacaksan ornek: sdk.dir=D:/Android/Sdk
+sdk.dir=BURAYA_ANDROID_SDK_YOLU
+
+# Google Books API anahtari (istege bagli).
+# Google Cloud Console > APIs & Services > Books API > Credentials > API key
+# Bos birakilirsa uygulama yine calisir, sadece anonim kota daha dusuktur.
+GOOGLE_BOOKS_API_KEY=

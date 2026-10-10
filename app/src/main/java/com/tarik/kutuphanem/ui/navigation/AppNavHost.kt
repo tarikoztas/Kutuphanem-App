@@ -38,6 +38,11 @@ fun AppNavHost(
                     navController.navigate(
                         KitapListesiRoute(kutuphaneId = kutuphane.id, kutuphaneAdi = kutuphane.ad)
                     )
+                },
+                onKitapAc = { sonuc ->
+                    navController.navigate(
+                        KitapDetayRoute(kutuphaneId = sonuc.kutuphaneId, kitapId = sonuc.kitap.id)
+                    )
                 }
             )
         }

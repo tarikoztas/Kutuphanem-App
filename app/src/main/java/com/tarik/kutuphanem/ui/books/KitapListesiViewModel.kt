@@ -6,8 +6,11 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.tarik.kutuphanem.core.AppResult
 import com.tarik.kutuphanem.core.aramaEslesiyorMu
+import com.tarik.kutuphanem.core.dataOrNull
 import com.tarik.kutuphanem.core.map
 import com.tarik.kutuphanem.domain.model.Kitap
+import com.tarik.kutuphanem.domain.model.OkumaSayilari
+import com.tarik.kutuphanem.domain.model.okumaSayilari
 import com.tarik.kutuphanem.domain.repository.KitapRepository
 import com.tarik.kutuphanem.ui.navigation.KitapListesiRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,6 +19,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map as akisMap
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -49,8 +53,15 @@ class KitapListesiViewModel @Inject constructor(
      * Arama istemci tarafinda: kutuphane basina kitap sayisi bir cihazda rahat tutulur,
      * boylece her tusa basista Firestore sorgusu gitmez ve cevrimdisi de calisir.
      */
+    private val tumKitaplar: StateFlow<AppResult<List<Kitap>>> =
+        kitapRepository.kitaplar(kutuphaneId).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = AppResult.Loading
+        )
+
     val durum: StateFlow<AppResult<List<Kitap>>> =
-        combine(kitapRepository.kitaplar(kutuphaneId), _arama) { sonuc, anahtar ->
+        combine(tumKitaplar, _arama) { sonuc, anahtar ->
             sonuc.map { liste ->
                 liste.filter { kitap ->
                     aramaEslesiyorMu(anahtar, kitap.baslik, kitap.yazarMetni, kitap.yayinevi)
@@ -60,6 +71,15 @@ class KitapListesiViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = AppResult.Loading
+        )
+
+    /** Arama filtresinden bagimsiz: kutuphanenin tamamindaki okundu / okunmadi dagilimi. */
+    val okumaSayilari: StateFlow<OkumaSayilari?> = tumKitaplar
+        .akisMap { sonuc -> sonuc.dataOrNull()?.okumaSayilari() }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = null
         )
 
     fun aramaDegisti(deger: String) {

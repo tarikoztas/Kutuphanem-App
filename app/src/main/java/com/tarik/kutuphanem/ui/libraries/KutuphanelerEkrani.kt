@@ -46,7 +46,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tarik.kutuphanem.core.AppResult
 import com.tarik.kutuphanem.domain.model.Kutuphane
+import com.tarik.kutuphanem.domain.model.KutuphaneKitabi
+import com.tarik.kutuphanem.domain.model.OkumaSayilari
+import com.tarik.kutuphanem.ui.components.AramaAlani
 import com.tarik.kutuphanem.ui.components.BosDurum
+import com.tarik.kutuphanem.ui.components.OkumaSayilariGosterimi
 import com.tarik.kutuphanem.ui.components.OnayDiyalogu
 import com.tarik.kutuphanem.ui.components.YuklemeKutusu
 
@@ -54,10 +58,15 @@ import com.tarik.kutuphanem.ui.components.YuklemeKutusu
 @Composable
 fun KutuphanelerEkrani(
     onKutuphaneAc: (Kutuphane) -> Unit,
+    onKitapAc: (KutuphaneKitabi) -> Unit,
     viewModel: KutuphanelerViewModel = hiltViewModel()
 ) {
     val durum by viewModel.durum.collectAsStateWithLifecycle()
     val mesaj by viewModel.mesaj.collectAsStateWithLifecycle()
+    val arama by viewModel.arama.collectAsStateWithLifecycle()
+    val sayilar by viewModel.sayilar.collectAsStateWithLifecycle()
+    val sonuclar by viewModel.sonuclar.collectAsStateWithLifecycle()
+    val kapaklar by viewModel.kapaklar.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
     var formAcik by remember { mutableStateOf(false) }
@@ -106,16 +115,37 @@ fun KutuphanelerEkrani(
                             aciklama = "Sağ alttaki düğmeyle ilk rafını oluştur. Örneğin \"Ev Kitaplığı\" ya da \"Okunacaklar\"."
                         )
                     } else {
-                        LazyColumn(
-                            contentPadding = PaddingValues(16.dp, 8.dp, 16.dp, 96.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            items(d.data, key = { it.id }) { kutuphane ->
-                                KutuphaneKarti(
-                                    kutuphane = kutuphane,
-                                    onTikla = { onKutuphaneAc(kutuphane) },
-                                    onDuzenle = { duzenlenen = kutuphane; formAcik = true },
-                                    onSil = { silinecek = kutuphane }
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            AramaAlani(
+                                deger = arama,
+                                onDegisim = viewModel::aramaDegisti,
+                                ipucu = "Tüm kütüphanelerde ara",
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            )
+
+                            if (arama.isBlank()) {
+                                LazyColumn(
+                                    contentPadding = PaddingValues(16.dp, 8.dp, 16.dp, 96.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    items(d.data, key = { it.id }) { kutuphane ->
+                                        KutuphaneKarti(
+                                            kutuphane = kutuphane,
+                                            sayilar = sayilar[kutuphane.id],
+                                            onTikla = { onKutuphaneAc(kutuphane) },
+                                            onDuzenle = { duzenlenen = kutuphane; formAcik = true },
+                                            onSil = { silinecek = kutuphane }
+                                        )
+                                    }
+                                }
+                            } else {
+                                GenelAramaSonuclari(
+                                    arama = arama,
+                                    sonuclar = sonuclar,
+                                    kapaklar = kapaklar,
+                                    onKapakIste = viewModel::kapakIste,
+                                    onKitapAc = onKitapAc,
+                                    onOkunduDegistir = viewModel::okunduDegistir
                                 )
                             }
                         }
@@ -160,6 +190,7 @@ fun KutuphanelerEkrani(
 @Composable
 private fun KutuphaneKarti(
     kutuphane: Kutuphane,
+    sayilar: OkumaSayilari?,
     onTikla: () -> Unit,
     onDuzenle: () -> Unit,
     onSil: () -> Unit
@@ -187,11 +218,19 @@ private fun KutuphaneKarti(
                     .padding(start = 14.dp)
             ) {
                 Text(text = kutuphane.ad, style = MaterialTheme.typography.titleMedium)
+                // Kitaplar yuklenene kadar kutuphane belgesindeki sayac gosterilir.
+                val toplam = sayilar?.toplam ?: kutuphane.kitapSayisi
                 Text(
-                    text = if (kutuphane.kitapSayisi == 0) "Boş" else "${kutuphane.kitapSayisi} kitap",
+                    text = if (toplam == 0) "Boş" else "$toplam kitap",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                if (sayilar != null && sayilar.toplam > 0) {
+                    OkumaSayilariGosterimi(
+                        sayilar = sayilar,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
             }
 
             Box {

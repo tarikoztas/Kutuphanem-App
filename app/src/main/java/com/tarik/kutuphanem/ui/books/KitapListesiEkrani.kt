@@ -17,12 +17,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Search
@@ -34,7 +32,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -57,8 +54,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tarik.kutuphanem.core.AppResult
 import com.tarik.kutuphanem.domain.model.Kitap
+import com.tarik.kutuphanem.ui.components.AramaAlani
 import com.tarik.kutuphanem.ui.components.BosDurum
 import com.tarik.kutuphanem.ui.components.KapakGorseli
+import com.tarik.kutuphanem.ui.components.OkumaSayilariGosterimi
 import com.tarik.kutuphanem.ui.components.OkunduRozeti
 import com.tarik.kutuphanem.ui.components.OnayDiyalogu
 import com.tarik.kutuphanem.ui.components.YuklemeKutusu
@@ -78,6 +77,7 @@ fun KitapListesiEkrani(
     val izgara by viewModel.izgaraGorunumu.collectAsStateWithLifecycle()
     val kapaklar by viewModel.kapaklar.collectAsStateWithLifecycle()
     val mesaj by viewModel.mesaj.collectAsStateWithLifecycle()
+    val okumaSayilari by viewModel.okumaSayilari.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
     var silinecek by remember { mutableStateOf<Kitap?>(null) }
@@ -126,6 +126,23 @@ fun KitapListesiEkrani(
                 onDegisim = viewModel::aramaDegisti,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
+
+            okumaSayilari?.let { sayilar ->
+                if (sayilar.toplam > 0) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "${sayilar.toplam} kitap",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(end = 14.dp)
+                        )
+                        OkumaSayilariGosterimi(sayilar = sayilar, ayrintili = true)
+                    }
+                }
+            }
 
             when (val d = durum) {
                 is AppResult.Loading -> YuklemeKutusu()
@@ -208,31 +225,6 @@ fun KitapListesiEkrani(
             onKapat = { silinecek = null }
         )
     }
-}
-
-@Composable
-private fun AramaAlani(
-    deger: String,
-    onDegisim: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    OutlinedTextField(
-        value = deger,
-        onValueChange = onDegisim,
-        placeholder = { Text("Kitap, yazar veya yayınevi ara") },
-        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-        trailingIcon = {
-            if (deger.isNotEmpty()) {
-                IconButton(onClick = { onDegisim("") }) {
-                    Icon(Icons.Default.Close, contentDescription = "Aramayı temizle")
-                }
-            }
-        },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions.Default,
-        shape = RoundedCornerShape(28.dp),
-        modifier = modifier.fillMaxWidth()
-    )
 }
 
 @Composable

@@ -11,8 +11,11 @@ import com.tarik.kutuphanem.data.remote.api.OpenLibraryService
 import com.tarik.kutuphanem.data.remote.dto.GoogleBooksBilgi
 import com.tarik.kutuphanem.domain.model.Kitap
 import com.tarik.kutuphanem.domain.repository.KitapAramaRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
+import retrofit2.HttpException
 import java.io.IOException
+import java.net.SocketTimeoutException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -106,18 +109,60 @@ class KitapAramaRepositoryImpl @Inject constructor(
     override suspend fun isimleAra(sorgu: String): AppResult<List<Kitap>> {
         if (sorgu.isBlank()) return AppResult.Success(emptyList())
 
+        // 1) Google Books. Sunucu zaman zaman gecici 5xx donuyor (ozellikle country=TR
+        //    ile), bu yuzden ulke parametresi olmadan ve 5xx'te kisa araliklarla tekrar denenir.
+        var googleSonuc: List<Kitap>? = null
+        var googleHata: Throwable? = null
+
+        for (deneme in 1..GOOGLE_DENEME) {
+            try {
+                val yanit = withTimeoutOrNull(ZAMAN_ASIMI) {
+                    googleBooks.ara(sorgu = sorgu, ulke = null)
+                }
+                if (yanit == null) {
+                    googleHata = SocketTimeoutException()
+                } else {
+                    googleSonuc = yanit.ogeler
+                        .mapNotNull { it.bilgi }
+                        .map { it.toKitap(isbn = "") }
+                        .filter { it.baslik.isNotBlank() }
+                    googleHata = null
+                }
+                break
+            } catch (e: HttpException) {
+                googleHata = e
+                if (e.code() !in 500..599) break
+                if (deneme < GOOGLE_DENEME) delay(TEKRAR_BEKLEME * deneme)
+            } catch (e: Exception) {
+                googleHata = e
+                break
+            }
+        }
+
+        if (!googleSonuc.isNullOrEmpty()) return AppResult.Success(googleSonuc)
+
+        // 2) Google ulasilamadiysa ya da sonuc bossa OpenLibrary'ye dus.
         return try {
-            val yanit = withTimeoutOrNull(ZAMAN_ASIMI) { googleBooks.ara(sorgu = sorgu) }
-                ?: return AppResult.Error("Arama zaman aşımına uğradı. Tekrar dene.")
+            val yanit = withTimeoutOrNull(ZAMAN_ASIMI) { openLibrary.ara(sorgu = sorgu) }
+            val sonuclar = yanit?.ogeler
+                ?.map { it.toKitap() }
+                ?.filter { it.baslik.isNotBlank() }
 
-            val sonuclar = yanit.ogeler
-                .mapNotNull { it.bilgi }
-                .map { it.toKitap(isbn = "") }
-                .filter { it.baslik.isNotBlank() }
-
-            AppResult.Success(sonuclar)
+            when {
+                sonuclar != null -> AppResult.Success(sonuclar)
+                googleSonuc != null -> AppResult.Success(emptyList())
+                else -> AppResult.Error(
+                    googleHata?.kullaniciMesaji() ?: "Arama zaman aşımına uğradı. Tekrar dene.",
+                    googleHata
+                )
+            }
         } catch (e: Exception) {
-            AppResult.Error(e.kullaniciMesaji(), e)
+            if (googleSonuc != null) {
+                AppResult.Success(emptyList())
+            } else {
+                val hata = googleHata ?: e
+                AppResult.Error(hata.kullaniciMesaji(), hata)
+            }
         }
     }
 
@@ -169,5 +214,7 @@ class KitapAramaRepositoryImpl @Inject constructor(
 
     private companion object {
         const val ZAMAN_ASIMI = 8_000L
+        const val GOOGLE_DENEME = 3
+        const val TEKRAR_BEKLEME = 500L
     }
 }

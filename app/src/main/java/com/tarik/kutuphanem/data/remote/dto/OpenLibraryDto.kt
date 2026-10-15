@@ -19,6 +19,23 @@ data class OpenLibraryKitap(
     @SerialName("notes") val notlar: String? = null
 )
 
+/** search.json cevabi: {"numFound": 31, "docs": [ ... ]} */
+@Serializable
+data class OpenLibraryAramaYaniti(
+    @SerialName("docs") val ogeler: List<OpenLibraryAramaOgesi> = emptyList()
+)
+
+@Serializable
+data class OpenLibraryAramaOgesi(
+    @SerialName("title") val baslik: String? = null,
+    @SerialName("subtitle") val altBaslik: String? = null,
+    @SerialName("author_name") val yazarlar: List<String> = emptyList(),
+    @SerialName("publisher") val yayinevleri: List<String> = emptyList(),
+    @SerialName("number_of_pages_median") val sayfaSayisi: Int? = null,
+    @SerialName("isbn") val isbnler: List<String> = emptyList(),
+    @SerialName("cover_i") val kapakId: Long? = null
+)
+
 @Serializable
 data class OpenLibraryAd(
     @SerialName("name") val ad: String? = null

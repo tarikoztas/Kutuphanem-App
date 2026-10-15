@@ -1,6 +1,7 @@
 package com.tarik.kutuphanem.data.mapper
 
 import com.tarik.kutuphanem.data.remote.dto.GoogleBooksBilgi
+import com.tarik.kutuphanem.data.remote.dto.OpenLibraryAramaOgesi
 import com.tarik.kutuphanem.data.remote.dto.OpenLibraryKitap
 import com.tarik.kutuphanem.domain.model.Kitap
 
@@ -44,6 +45,18 @@ fun OpenLibraryKitap.toKitap(isbn: String): Kitap = Kitap(
     kapakUrl = (kapak?.buyuk ?: kapak?.orta ?: kapak?.kucuk)
         ?.kapakAdresiniDuzelt()
         ?: if (isbn.isNotBlank()) "https://covers.openlibrary.org/b/isbn/$isbn-L.jpg" else ""
+)
+
+fun OpenLibraryAramaOgesi.toKitap(): Kitap = Kitap(
+    baslik = listOfNotNull(
+        baslik?.takeIf { it.isNotBlank() },
+        altBaslik?.takeIf { it.isNotBlank() }
+    ).joinToString(": "),
+    yazarlar = yazarlar.filter { it.isNotBlank() },
+    yayinevi = yayinevleri.firstOrNull { it.isNotBlank() }.orEmpty(),
+    sayfaSayisi = sayfaSayisi?.takeIf { it > 0 },
+    isbn = isbnler.firstOrNull { it.length == 13 } ?: isbnler.firstOrNull().orEmpty(),
+    kapakUrl = kapakId?.let { "https://covers.openlibrary.org/b/id/$it-M.jpg" }.orEmpty()
 )
 
 /**

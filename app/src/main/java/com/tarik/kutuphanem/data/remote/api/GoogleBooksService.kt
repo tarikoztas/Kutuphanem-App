@@ -14,7 +14,7 @@ interface GoogleBooksService {
     @GET("books/v1/volumes")
     suspend fun ara(
         @Query("q") sorgu: String,
-        @Query("country") ulke: String = "TR",
+        @Query("country") ulke: String? = "TR",
         @Query("maxResults") enFazla: Int = 20
     ): GoogleBooksYanit
 }
